@@ -1,0 +1,70 @@
+##
+### Tiahura data
+##
+## rm(list=ls())
+##
+library(magrittr)
+library(spdep)
+##
+tiahura <-
+    list(
+        fish = read.table("Fish.txt"),
+        Species = scan("Species.txt",what=character(),sep="\n",quiet=TRUE),
+        Behav = read.table("Behav.txt"),
+        Habitat = read.table("Habitat.txt")
+        
+    )
+##
+## head(tiahura$fish)
+colnames(tiahura$fish) <-
+    sprintf("Site_%d",1L:ncol(tiahura$fish))
+##
+## head(tiahura$Behav)
+colnames(tiahura$Behav) <-
+    c("Feeding","Ecology","Adult","Egg","Activity")
+tiahura$Behav[["Feeding"]] <-
+    c("herbivorous","omnivorous","diurnal_grazer","carnivorous_type_1",
+      "carnivorous_type_2","piscivorous","zooplanktivorous")[tiahura$Behav[["Feeding"]]] %>% as.factor
+tiahura$Behav[["Ecology"]] <-
+    c("hiding","bottom","circling","above","swimmer","sub-surface","pelagic")[tiahura$Behav[["Ecology"]]] %>% as.factor
+tiahura$Behav[["Adult"]] <-
+    c("0:0-15cm","1:16-30cm","2:31-60cm","3:61-120cm","4:121-240cm",
+      "5:>240 cm")[tiahura$Behav[["Adult"]]] %>% as.ordered
+tiahura$Behav[["Egg"]] <-
+    c("pelagic","benthic","viviparous")[tiahura$Behav[["Egg"]]] %>% as.factor
+tiahura$Behav[["Activity"]] <-
+    c("diurnal","nocturnal","any")[tiahura$Behav[["Activity"]]] %>% as.factor
+##
+## head(tiahura$Habitat)
+tiahura$Habitat %<>% t
+rownames(tiahura$Habitat) <- colnames(tiahura$fish)
+colnames(tiahura$Habitat) <-
+    c("distance","depth",
+      "slab","sand","debris","turf","coral","algae","calcareous","other")
+## rowSums(tiahura$Habitat[,3L:10L])
+##
+tiahura$Reef <-
+    data.frame(
+        zone=c("fringing reef","channel","barrier reef","ridge","upper platform","outer\nslope"),
+        from=c( 25, 250,  350,  815, 835,  900),
+        to=c(  250, 350,  815,  835, 900, 1020)
+    )
+##
+library(magrittr)
+plot(x=tiahura$Habitat[,"distance"], y=tiahura$Habitat[,"depth"],
+     ylim=tiahura$Habitat[,"depth"]%>%range%>%rev, las=1,
+     ylab="Depth\n(cm)\n", xlab="", type="l", lwd=2)
+for(i in 1L:nrow(tiahura$Reef)) {
+    abline(v=tiahura$Reef[i,2L],lty=3L)
+    abline(v=tiahura$Reef[i,3L],lty=3L)
+    if((tiahura$Reef[i,3L]-tiahura$Reef[i,2L])<100) {
+        text(x=(tiahura$Reef[i,2L]+tiahura$Reef[i,3L])/2,y=2250,
+             labels=toupper(tiahura$Reef[i,1L]),srt=90,adj=0,cex=0.75)
+    } else {
+        text(x=(tiahura$Reef[i,2L]+tiahura$Reef[i,3L])/2,y=2250,
+             labels=toupper(tiahura$Reef[i,1L]),cex=0.75)
+    }
+}
+##
+save(tiahura, file="tiahura.rda")
+##
