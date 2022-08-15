@@ -11,6 +11,18 @@ if(FALSE) {
   file.copy("Tiahura.R","../adespatial/R",overwrite=TRUE)
 }
 ##
+library(devtools)
+install_github("sdray/adespatial",ref="master")
+library(adespatial)
+?constr.hclust
+?`constr.hclust-class`
+##
+library(devtools)
+install_github("guenardg/adespatial",ref="constr_hclust")
+library(adespatial)
+?constr.hclust
+?`constr.hclust-class`
+##
 library(adespatial)
 data("Tiahura", package = "adespatial")
 ##
